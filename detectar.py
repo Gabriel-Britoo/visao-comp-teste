@@ -4,7 +4,7 @@ import serial
 import time
 
 # comunicação serial
-arduino = serial.Serial('COM7', 9600, timeout=1)
+arduino = serial.Serial('COM3', 9600, timeout=1)
 time.sleep(2)  # tempo para a conexão estabilizar
 
 # carregar o modelo YOLOv5
@@ -16,6 +16,8 @@ while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
+
+    frame = cv2.flip(frame, 1)
 
     # realizar a detecção
     results = model(frame)
@@ -31,10 +33,12 @@ while cap.isOpened():
     cv2.imshow('YOLOv5 Detecção de Pessoas', frame)
 
     # enviar sinal para o Arduino se houver pelo menos 1 pessoa detectada
-    if num_pessoas > 0:
+    if num_pessoas > 2:
         arduino.write(b'1\n')  # enviar '1' para o Arduino
     else:
         arduino.write(b'0\n')  # enviar '0' para o Arduino
+
+    time.sleep(1)    
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
